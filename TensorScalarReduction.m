@@ -107,8 +107,8 @@ IntToScalars[int_,propagators_]:=Block[{num,dimension,nts,integrals,prefactors},
 num=num/.{T[a_,b_]:> GetTs[propagators][[a,b]],P[a_][\[Mu][i_]]:> AddIndex[GetPs[propagators][[a]],i]}//Expand;
 nts=Length[FindLoopPropagators[propagators]];
 integrals=(Int[#,dimension]&/@(1+Exponent[#,Table[t[i],{i,1,nts}]]&/@(MakeList@num)));
-prefactors=((MakeList[num])/.{t[a_]^b_:> (-1)^b b!,t[a_]->-1});
-(-1)^nts* (integrals.prefactors)
+prefactors=((MakeList[num])/.{t[a_]^b_:> b!, t[a_]->1});
+(integrals.prefactors)
 ];
 
 IntToScalars[int_,propagators_,powers_List]:=Block[
@@ -121,12 +121,9 @@ zeroRep = Table[If[toZero[[i]],t[i]->0,0->0],{i,1,nts}]//Flatten;
 num = num/.zeroRep;
 (*nts -= Total[Boole[toZero]];*)
 integrals=(Int[#,dimension]&/@(powers+Exponent[#,Table[t[i],{i,1,nts}]]&/@(MakeList[num])));
-prefactors=((MakeList[num])/.{t[a_]^b_:> (-1)^b b!,t[a_]->-1});
-(-1)^nts* (integrals.prefactors)
+prefactors=((MakeList[num])/.{t[a_]^b_:> Factorial[b+powers[[a]]-1]/Factorial[powers[[a]]-1], t[a_]->1});
+(integrals.prefactors)
 ];
-
-
-Print["Aha"];
 
 SetAttributes[IntToScalarsList,HoldAll]
 IntToScalarsList[int_,propagators_,listints_]:=Block[{num,dimension,nts,res},
